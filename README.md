@@ -1,8 +1,8 @@
+
 gitreceive
 ==========
-[![Build Status](https://travis-ci.org/progrium/gitreceive.png?branch=master)](https://travis-ci.org/progrium/gitreceive)
 
-Creates an ssh+git user that accepts on the fly repository pushes and triggers a hook script. 
+Creates an ssh+git user that accepts on the fly repository pushes and triggers a hook script.
 
 Push code anywhere. Extend your Git workflow.
 
@@ -16,11 +16,17 @@ You need a Linux server with `git` and `sshd` installed.
 
 On your server, download https://raw.github.com/progrium/gitreceive/master/gitreceive to a location on your $PATH and make it executable.
 
+```
+curl -sLo /usr/local/bin/gitreceive https://raw.github.com/progriumgitreceive/master/gitreceive
+chmod +x /usr/local/bin/gitreceive
+gitreceive init
+```
+
 ## Using gitreceive
 
 #### Set up a git user on the server
 
-This automatically makes a user and home directory if it doesn't exist. 
+This automatically makes a user and home directory if it doesn't exist.
 
     $ sudo gitreceive init
     Created receiver script in /home/git for user 'git'.
@@ -29,6 +35,10 @@ You use a different user by setting `GITUSER=somethingelse` in the
 environment before using `gitreceive`.
 
 #### Modify the receiver script
+
+> Note for this fork: it includes a sample [receiver](receiver) script which is based:
+- a `docker-compose.yaml` file in the root dir
+- a Makefile with a `deploy` target (usually docker-compose up -d and maybe backup some db ... )
 
 As an example receiver script, it will POST all the data to a RequestBin:
 
@@ -44,10 +54,10 @@ As an example receiver script, it will POST all the data to a RequestBin:
       -F "fingerprint=$4" \
       -F contents=@- \
       --silent $URL
-    
+
 The username is just a name associated with a public key. The
 fingerprint of the key is sent so you can authenticate against the
-public key that you may have for that user. 
+public key that you may have for that user.
 
 Commands do not have access to environment variables from the `/etc/profile` directory, so if you need access to them, you will need to maually `source /etc/profile` - or any other configuration file - within your receiver script.
 
@@ -86,7 +96,7 @@ The repository `example` will be created on the fly when you push.
     Compressing objects: 100% (3/3), done.
     Writing objects: 100% (3/3), 332 bytes, done.
     Total 3 (delta 1), reused 0 (delta 0)
-    ----> Receiving progrium/gitreceive.git ... 
+    ----> Receiving progrium/gitreceive.git ...
     ----> Posting to http://requestb.in/rlh4znrl ...
     ok
     To git@gittest:progrium/gitreceive.git
@@ -114,7 +124,7 @@ feedback to the user and affect workflow. Use `gitreceive` to:
 
 I used to work at Twilio. Imagine pushing a repo with a TwiML file to a
 gitreceive repo with a phone number for a name. And then it runs that
-TwiML on Twilio and shows you the result, all from the `git push`. 
+TwiML on Twilio and shows you the result, all from the `git push`.
 
 
 ## Big Thanks

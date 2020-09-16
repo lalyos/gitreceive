@@ -1,0 +1,43 @@
+#!/bin/bash
+PROD_REPO=user
+
+info() {
+  echo "-----> $*"    
+}
+
+repo=$1
+PROD_DB=/home/git/pushed/user/db.sqlite3
+
+REPO_DIR=/home/git/pushed/$repo
+
+rm -rf $REPO_DIR/gravity/migrations/
+mkdir -p $REPO_DIR && cat | tar -x -C $REPO_DIR
+
+echo "-----> Receiving repo: $repo"
+if [[ $repo == $PROD_REPO ]];then 
+  info Deploying to PROD
+  GRAVITY_DOMAIN=user.gravitybudapest.com
+  GRAVITY_ENV=prod
+else
+  info deploying to PRE-PROD
+
+  info clone prod DB from: $PROD_DB
+  cp $PROD_DB $REPO_DIR
+  #ng info DB is keep as it is
+
+  GRAVITY_DOMAIN=${repo}.gravitybudapest.com
+  GRAVITY_ENV=preprod
+fi
+
+info create .env file
+cat > $REPO_DIR/.env <<EOF
+GRAVITY_DOMAIN=$GRAVITY_DOMAIN
+GRAVITY_ENV=$GRAVITY_ENV
+EOF
+
+info deploying to: http://$GRAVITY_DOMAIN
+set -x
+cd $REPO_DIR
+#docker-compose up -d
+make deploy
+
